@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs24.x
+    CodeUri: dist/
+    Environment: 
+      Variables:
+        TABLE_NAME: UrlShortener
+Resources:
+
+  CreateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: handlers/create.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: UrlShortener
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /shorten
+            Method: post
+  RedirectFunction:
+    Type: AWS::Serverless::Function
+    Properties: 
+      Handler: handlers/redirect.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: UrlShortener
+    Events:
+      Api:
+        Type: Api
+        Properties:
+          Path: /{id}
+          Method: get
+     
